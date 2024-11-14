@@ -1,18 +1,20 @@
 package com.project.invoice_tracking_system.Exception_handling.exception_handler;
 
-import java.nio.file.AccessDeniedException;
-
-import javax.naming.AuthenticationException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import com.project.invoice_tracking_system.Exception_handling.exception.EmailAlreadyExistsException;
 import com.project.invoice_tracking_system.Exception_handling.exception.ItemAlreadyExistsException;
 import com.project.invoice_tracking_system.response.ErrorResponse;
 
-@ControllerAdvice
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	 @ExceptionHandler(EmailAlreadyExistsException.class)
@@ -33,6 +35,7 @@ public class GlobalExceptionHandler {
 	        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	   }
 	  
+	  @ResponseStatus(HttpStatus.UNAUTHORIZED)
 	  @ExceptionHandler(AuthenticationException.class)
 	    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
 	        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
@@ -40,9 +43,17 @@ public class GlobalExceptionHandler {
 	   }
 	  
 	  
+	   @ExceptionHandler(SecurityException.class)
+	    public ResponseEntity<ErrorResponse> handleSecurityException(SecurityException ex) {
+	        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+	        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	   
+	   
 	    @ExceptionHandler(Exception.class)
 	    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
 	        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
 	        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
+	    
 }

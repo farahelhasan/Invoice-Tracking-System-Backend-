@@ -1,18 +1,26 @@
 package com.project.invoice_tracking_system.services;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import javax.naming.AuthenticationException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import com.project.invoice_tracking_system.Exception_handling.exception.EmailAlreadyExistsException;
+import com.project.invoice_tracking_system.Exception_handling.exception.UnauthorizedException;
 import com.project.invoice_tracking_system.dots.LoginUserDto;
 import com.project.invoice_tracking_system.dots.RegisterUserDto;
 import com.project.invoice_tracking_system.entities.Role;
 import com.project.invoice_tracking_system.entities.User;
 import com.project.invoice_tracking_system.repositories.UserRepository;
+
 
 /**
  * AuthenticationService is responsible for handling user authentication and registration.
@@ -36,6 +44,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    Logger logger = LoggerFactory.getLogger(ApplicationHome.class);
 
     /**
      * Constructs a new instance of AuthenticationService.
@@ -84,17 +93,32 @@ public class AuthenticationService {
      * @return The authenticated user entity.
      * @throws Exception if the login credentials are invalid.
      */
+
     public User authenticate(LoginUserDto input) {
-    	// check if valid
+        // Attempt authentication with the provided credentials
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()
-                )
+            new UsernamePasswordAuthenticationToken(
+                input.getEmail(),
+                input.getPassword()
+            )
         );
 
-        // check in database 
+        // Retrieve the user from the database if authentication succeeds
         return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+//    public User authenticate(LoginUserDto input) {
+//    	// check if valid
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        input.getEmail(),
+//                        input.getPassword()
+//                )
+//        );
+//
+//        // check in database 
+//        return userRepository.findByEmail(input.getEmail())
+//                .orElseThrow();
+//    }
 }

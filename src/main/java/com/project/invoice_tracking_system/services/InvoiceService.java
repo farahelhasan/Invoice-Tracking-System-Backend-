@@ -185,6 +185,8 @@ public class InvoiceService {
 		
 		if( ((user.getRole().getName().equalsIgnoreCase("SUPERUSER")) || (invoice.getUser().getId() == user.getId()) )  && invoice.isDeleted() == false) {
 			invoiceItemRepository.deleteById(id);
+	        System.out.println("hellllllllllllllllllllllllllllllo");
+
 			// make a record to history.
 	        historyService.CreateDeleteItemHistoryRecoard(invoice, invoiceItem, user);
 			return invoiceRepository.findById(invoice.getId()).get();
@@ -291,6 +293,9 @@ public class InvoiceService {
 	        if(invoice == null) {
 	           throw new Exception("error");
 		    }
+	        if(invoiceItemRepository.calculateTotalPriceByInvoiceId(invoiceId) == null) {
+	        	return 0.00;
+	        }	        
 	        return invoiceItemRepository.calculateTotalPriceByInvoiceId(invoiceId);
     }
 }

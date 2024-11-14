@@ -86,10 +86,11 @@ public class HistoryService {
 	    
 		 Item item = itemRepository.findById(invoiceItemDto.getItemId()).get();
 		 
-//         History inactive = historyRepository.findByInvoiceIdAndStatusAndItemId(invoice.getId(),1, item.getId());
-//         inactive.setStatus(0);
-//         historyRepository.save(inactive);
-         
+         History inactive = historyRepository.findByInvoiceIdAndStatusAndItemId(invoice.getId(),1, item.getId());
+         if(inactive != null) {
+         inactive.setStatus(0);
+         historyRepository.save(inactive);
+         }
 		 History history = new History();
 	        history.setInvoice(invoice);
 	        history.setUser(user);
@@ -114,11 +115,13 @@ public class HistoryService {
 	public void CreateDeleteItemHistoryRecoard(Invoice invoice, InvoiceItem invoiceItem, User user) {
 	    
 		 Item item = invoiceItem.getItem();
-		 
+
          History inactive = historyRepository.findByInvoiceIdAndStatusAndItemId(invoice.getId(),1, item.getId());
+
         inactive.setStatus(0);
+
         historyRepository.save(inactive);
-        
+
 		 History history = new History();
 	        history.setInvoice(invoice);
 	        history.setUser(user);
@@ -130,6 +133,7 @@ public class HistoryService {
 	        history.setPrice(item.getPrice());
 	        history.setQuantity(invoiceItem.getQuantity());
 	        
+
         historyRepository.save(history);
 	}
 	
